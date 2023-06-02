@@ -1,72 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { Props, SECURITY_CODE } from './ClassState';
+import { reducer, initialState, ACTIONS } from './reducer';
 
-const UseState: React.FC<Props> = (props) => {
-  const [value, setValue] = useState<string>('');
-  const [error, setError] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [state, setState] = useState<any>({
-    deleted: false,
-    confirmed: false
-  });
+const UseReducer: React.FC<Props> = (props) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const onConfirm = () => {
-    setError(true);
-    setLoading(false);
-  };
+  // action creators
+  const onConfirm = () => dispatch({ type: ACTIONS.CONFIRM });
+  const onError = () => dispatch({ type: ACTIONS.ERROR });
+  const onCheck = () => dispatch({ type: ACTIONS.CHECK });
+  const onDelete = () => dispatch({ type: ACTIONS.DELETE });
+  const onBack = () => dispatch({ type: ACTIONS.BACK });
 
-  const onError = () => {
-    setState({ ...state, confirmed: true });
-    setLoading(false);
-  }
-
-  const onCheck = () => {
-    setError(false);
-    setLoading(true)
-  }
-
-  const onDelete = () => {
-    setState({ ...state, deleted: true })
-  }
-
-  const onBack = () => {
-    setState({
-      ...state,
-      confirmed: false,
-      deleted: false
-    });
-    setValue('');
+  const onChangeInput = (e: any) => {
+    e.preventDefault();
+    dispatch({ type: ACTIONS.CHANGE_INPUT, payload: e.target.value });
   }
 
   useEffect(() => {
-    if (!!loading) {
+    console.log(state);
+    if (!!state.loading) {
       setTimeout(() => {
-        if (value !== SECURITY_CODE) onConfirm();
+        if (state.value !== SECURITY_CODE) onConfirm();
         else onError();
       }, 3000);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
-  const onChangeInput = (e: any) => {
-    e.preventDefault();
-    setValue(e.target.value);
-  }
+  }, [state.loading]);
 
   if (!state.deleted && !state.confirmed) {
     return (
       <div>
         <h2>Eliminar {props.name}</h2>
         <p>Por favor, escribe el código de seguridad</p>
-        {error && (
+        {state.error && (
           <p>Error: el código es incorrecto</p>
         )}
-        {loading && (
+        {state.loading && (
           <p>Cargando...</p>
         )}
         <input
           placeholder='Código de seguridad'
-          value={value}
+          value={state.value}
           onChange={onChangeInput}
         />
         <button
@@ -106,4 +81,5 @@ const UseState: React.FC<Props> = (props) => {
   }
 }
 
-export default UseState;
+export default UseReducer;
+
