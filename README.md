@@ -1,3 +1,3 @@
 # security-codes
  
-Little proyect about how works the state on a react application.
+this project is an exaple of how state work on react.
